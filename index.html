@@ -133,18 +133,17 @@
 
     .action-buttons-layout {
         display: flex !important;
-        flex-direction: row !important; /* В одну линию */
+        flex-direction: row !important;
         gap: 10px;
         margin-top: auto;
     }
 
-    /* Новый минималистичный стиль кнопок */
     .action-btn {
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.04);
-        color: #888e9b; /* Более приглушенный стильный цвет текста */
+        color: #888e9b;
         padding: 10px 14px;
-        border-radius: 12px; /* Мягкое скругление */
+        border-radius: 12px;
         font-size: 13px;
         font-weight: 500;
         cursor: pointer;
@@ -152,29 +151,26 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        width: 50%; /* Каждая кнопка занимает ровно половину строки */
+        width: 50%;
         transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    /* Элегантный ховер-эффект */
     .action-btn:hover {
         background: rgba(255, 255, 255, 0.06);
         color: #f3f4f6;
         border-color: rgba(255, 255, 255, 0.15);
-        transform: translateY(-1px); /* Очень легкий, аккуратный подъем */
+        transform: translateY(-1px);
     }
 
-    /* Изменяем ховер конкретно для кнопки Поделиться */
     #share-btn:hover {
         border-color: rgba(40, 85, 95, 0.4);
         box-shadow: 0 0 15px -5px rgba(40, 85, 95, 0.3);
     }
 
-    /* Премиальный стиль для активного лайка */
     .action-btn.liked {
         background: rgba(239, 68, 68, 0.06);
         border-color: rgba(239, 68, 68, 0.25);
-        color: #f43f5e; /* Приятный неоново-розовый оттенок */
+        color: #f43f5e;
         box-shadow: 0 0 20px -5px rgba(239, 68, 68, 0.2);
     }
 
@@ -182,8 +178,6 @@
         fill: #f43f5e;
         stroke: #f43f5e;
     }
-
-    /* Небольшая оптимизация иконок, чтобы они смотрелись тоньше */
     .action-btn svg {
         width: 16px;
         height: 16px;
@@ -192,7 +186,7 @@
     }
 
     .action-btn:hover svg {
-        transform: scale(1.05); /* Микро-увеличение иконки при наведении */
+        transform: scale(1.05);
     }
 
     .time-travel-active {
@@ -205,7 +199,6 @@
         100% { box-shadow: 0 0 35px rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); }
     }
     
-    /* Старый пиксельный шрифт для ретро-атмосферы */
     .retro-text {
         font-family: 'Courier New', Courier, monospace !important;
         color: #ef4444 !important;
@@ -214,8 +207,8 @@
 
     .action-btn:disabled {
         opacity: 0.5;
-        cursor: not-allowed; /* Курсор запрета */
-        pointer-events: none; /* Полностью отключает любые клики на уровне браузера */
+        cursor: not-allowed;
+        pointer-events: none;
     }
 
 
@@ -461,7 +454,6 @@
     let travelInterval = null;
     let isTraveling = false;
 
-    // 1. Новая функция живых часов
     function updateClock() {
         if (isTraveling) return; 
         const now = new Date();
@@ -476,7 +468,6 @@
         if (timeEl) timeEl.classList.remove('retro-text');
     }
 
-    // 2. Логика безумной перемотки назад
     function startTimeTravel() {
         isTraveling = true;
         clearInterval(clockInterval);
@@ -506,7 +497,6 @@
         }, 40); 
     }
 
-    // 3. Логика плавного возврата в реальность
     function stopTimeTravel() {
         if (!isTraveling) return;
         isTraveling = false;
@@ -517,7 +507,6 @@
         clockInterval = setInterval(updateClock, 5000);
     }
 
-    // 4. Вешаем события зажатия
     if (timeBlock) {
         timeBlock.addEventListener('mousedown', startTimeTravel);
         window.addEventListener('mouseup', stopTimeTravel);
@@ -525,8 +514,7 @@
         timeBlock.addEventListener('touchstart', (e) => { e.preventDefault(); startTimeTravel(); });
         window.addEventListener('touchend', stopTimeTravel);
     }
-
-    // Вызовы инициализации
+    
     changeLanguage('en');
     getRandomTrack();
     updateClock();
@@ -616,23 +604,19 @@
 
     let userIP = "guest";
 
-    // 1. Узнаем IP пользователя для уникального ключа
     fetch('https://api.ipify.org?format=json')
         .then(response => response.json())
         .then(data => {
             userIP = data.ip.replace(/\./g, '-');
 
-            // 1. Проверяем в Firebase, лайкал ли уже этот IP
             database.ref(`portfolio/users/${userIP}`).once('value', (snapshot) => {
                 if (snapshot.val() === true) {
                     likeBtn.classList.add('liked');
                 }
 
-                // МАГИЯ: Активируем кнопку только когда Firebase проверил статус этого IP!
                 likeBtn.removeAttribute('disabled');
             });
 
-            // 2. Система уникальных просмотров
             database.ref(`portfolio/visitors/${userIP}`).once('value', (snapshot) => {
                 if (snapshot.val() !== true) {
                     database.ref('portfolio/total_views').transaction(c => (c || 0) + 1);
@@ -642,16 +626,14 @@
     })
     .catch(() => { 
         userIP = "hidden-" + Math.floor(Math.random() * 10000); 
-        likeBtn.removeAttribute('disabled'); // Разблокируем в случае ошибки сети
+        likeBtn.removeAttribute('disabled');
     });
 
 
-    // 2. Выводим ОБЩЕЕ количество лайков на экран
     database.ref('portfolio/total_likes').on('value', (snapshot) => {
         likeCountEl.textContent = snapshot.val() || 0;
     });
 
-    // 3. Логика клика
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const icon = likeBtn.querySelector('svg');
@@ -661,19 +643,16 @@
         const isLiked = likeBtn.classList.contains('liked');
 
         if (!isLiked) {
-            // Ставим лайк: прибавляем 1 к общему счетчику И записываем IP в базу
             database.ref('portfolio/total_likes').transaction(c => (c || 0) + 1);
             database.ref(`portfolio/users/${userIP}`).set(true);
             likeBtn.classList.add('liked');
         } else {
-            // Убираем лайк: вычитаем 1 И удаляем IP из базы
             database.ref('portfolio/total_likes').transaction(c => Math.max(0, (c || 0) - 1));
             database.ref(`portfolio/users/${userIP}`).remove();
             likeBtn.classList.remove('liked');
         }
     });
 
-    // Копирование ссылки (остается без изменений)
     const shareTranslations = { en: "Share", ru: "Поделиться", de: "Teilen" };
     shareBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -686,40 +665,33 @@
         });
     });
 
-    // Пасхалка: Floppa Mode в Spotify
     let spotifyClicks = 0;
     let floppaTimeout = null;
 
-    // Находим иконку Spotify внутри музыкального блока
     const spotifyIcon = document.querySelector('.item-music svg');
 
     if (spotifyIcon) {
-        spotifyIcon.style.cursor = 'pointer'; // Делаем иконку кликабельной
+        spotifyIcon.style.cursor = 'pointer';
 
         spotifyIcon.addEventListener('click', (e) => {
-            e.stopPropagation(); // Отключаем конфликт с наклоном карточки
+            e.stopPropagation();
             spotifyClicks++;
 
-            // Быстрый пульс иконки при клике
             spotifyIcon.style.transform = 'scale(0.8)';
             setTimeout(() => spotifyIcon.style.transform = 'scale(1)', 100);
 
             if (spotifyClicks === 5) {
                 spotifyClicks = 0;
 
-                // Сохраняем то, что играло до этого
                 const oldName = document.getElementById('track-name').textContent;
                 const oldArtist = document.getElementById('track-artist').textContent;
                 const eqBars = document.querySelectorAll('.eq-bar');
 
-                // Включаем Шлёпу
                 document.getElementById('track-name').textContent = "Pelmeni Song 🥟";
                 document.getElementById('track-artist').textContent = "Big Floppa";
 
-                // Разгоняем эквалайзер на максимум
                 eqBars.forEach(bar => bar.style.animationDuration = '0.2s');
 
-                // Через 4 секунды возвращаем старый трек обратно
                 clearTimeout(floppaTimeout);
                 floppaTimeout = setTimeout(() => {
                     document.getElementById('track-name').textContent = oldName;
@@ -735,38 +707,28 @@
 
     const viewsCountEl = document.getElementById('views-count');
 
-    // Выводим ОБЩЕЕ количество уникальных просмотров на экран в реальном времени
     database.ref('portfolio/total_views').on('value', (snapshot) => {
         if (viewsCountEl) viewsCountEl.textContent = snapshot.val() || 0;
     });
-
-    // СРАЗУ проверяем локальную сессию, чтобы заблокировать дюп при перезагрузках
     const hasVisitedThisSession = sessionStorage.getItem('portfolio_view_counted');
 
     fetch('https://api.ipify.org?format=json')
         .then(response => response.json())
         .then(data => {
             userIP = data.ip.replace(/\./g, '-');
-
-            // 1. Проверяем в Firebase статус лайка для этого IP
             database.ref(`portfolio/users/${userIP}`).once('value', (snapshot) => {
                 if (snapshot.val() === true) {
                     likeBtn.classList.add('liked');
                 }
-                // Активируем кнопку лайка только после полной проверки
                 likeBtn.removeAttribute('disabled');
             });
 
-            // 2. СИСТЕМА УНИКАЛЬНЫХ ПРОСМОТРОВ С ДВОЙНОЙ ЗАЩИТОЙ
             if (!hasVisitedThisSession) {
-                // Если в этой сессии вкладки мы ещё не считали просмотр — лезем в базу данных
                 database.ref(`portfolio/visitors/${userIP}`).once('value', (snapshot) => {
                     if (snapshot.val() !== true) {
-                        // Если и в базе данных этого IP нет — крутим счётчик
                         database.ref('portfolio/total_views').transaction(c => (c || 0) + 1);
                         database.ref(`portfolio/visitors/${userIP}`).set(true);
                     }
-                    // Запоминаем в сессии браузера, что этот пользователь уже учтён
                     sessionStorage.setItem('portfolio_view_counted', 'true');
                 });
             }
